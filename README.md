@@ -1,2 +1,2 @@
-# sdc
-Repository for Team Isabela's API
+# QnA
+Database for Atelier Q&A API.
