@@ -1,0 +1,19 @@
+{
+  "name": "sdc6-qna",
+  "version": "1.0.0",
+  "description": "Questions and answers repo for Team Isabela",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/team-isabela/QnA.git"
+  },
+  "author": "Kavita Poduri",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/team-isabela/QnA/issues"
+  },
+  "homepage": "https://github.com/team-isabela/QnA#readme"
+}
