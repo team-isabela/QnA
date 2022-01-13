@@ -4,19 +4,22 @@ CREATE TABLE questions (
  question_body VARCHAR,
  question_date TIMESTAMP,
  asker_name VARCHAR,
- question_helpfulness INTEGER,
- reported BOOLEAN
+ asker_email VARCHAR,
+ reported BOOLEAN,
+ question_helpfulness INTEGER
 );
 
 
 ALTER TABLE questions ADD CONSTRAINT questions_pkey PRIMARY KEY (question_id);
 
 CREATE TABLE answers (
- question_id INTEGER,
  answer_id BIGSERIAL,
- answer_body INTEGER,
+ question_id INTEGER,
+ answer_body VARCHAR,
  answer_date TIMESTAMP,
  answerer_name VARCHAR,
+ answerer_email VARCHAR,
+ reported BOOLEAN,
  answer_helpfulness INTEGER
 );
 
@@ -24,9 +27,9 @@ CREATE TABLE answers (
 ALTER TABLE answers ADD CONSTRAINT answers_pkey PRIMARY KEY (answer_id);
 
 CREATE TABLE photos (
- answer_id INTEGER,
  photo_id BIGSERIAL,
- url VARCHAR
+ answer_id INTEGER,
+ photo_url VARCHAR
 );
 
 
