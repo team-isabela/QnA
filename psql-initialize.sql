@@ -20,7 +20,7 @@ CREATE TABLE questions (
 ALTER TABLE questions ADD CONSTRAINT questions_pkey PRIMARY KEY (question_id);
 
 COPY questions
-FROM PROGRAM '/home/kpoduri/projects/hackreactor/senior-phase/sdc6/csv-data/questions.csv'
+FROM '/home/kpoduri/projects/hackreactor/senior-phase/sdc6/csv-data/questions.csv'
 DELIMITER ',' CSV HEADER;
 
 UPDATE questions SET question_date = question_date/1000;
@@ -42,7 +42,7 @@ CREATE TABLE answers (
 ALTER TABLE answers ADD CONSTRAINT answers_pkey PRIMARY KEY (answer_id);
 
 COPY answers
-FROM PROGRAM '/home/kpoduri/projects/hackreactor/senior-phase/sdc6/csv-data/answers.csv'
+FROM '/home/kpoduri/projects/hackreactor/senior-phase/sdc6/csv-data/answers.csv'
 DELIMITER ',' CSV HEADER;
 
 UPDATE answers SET answer_date = answer_date/1000;
@@ -56,7 +56,7 @@ CREATE TABLE answers_photos (
 );
 
 COPY answers_photos
-FROM PROGRAM '/home/kpoduri/projects/hackreactor/senior-phase/sdc6/csv-data/answers_photos.csv'
+FROM '/home/kpoduri/projects/hackreactor/senior-phase/sdc6/csv-data/answers_photos.csv'
 DELIMITER ',' CSV HEADER;
 
 ALTER TABLE answers_photos ADD CONSTRAINT answers_photos_pkey PRIMARY KEY (photo_id);
