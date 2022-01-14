@@ -9,5 +9,5 @@ server.get('/', (req, res) => {
 })
 
 server.listen(port, () => {
-  console.log(`sdc6 server.js now listening at port ${port}...`)
+  console.log(`sdc6 qna server.js now listening at port ${port}...`)
 })
