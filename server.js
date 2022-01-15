@@ -18,7 +18,7 @@ server.get('/qa/questions', async (req, res) => {
       question_helpfulness,
       reported
     from questions
-    where product_id = ${req.query.product_id}
+    where product_id = ${req.query.product_id} and reported = ${false}
     limit ${req.query.count || 5}
   `
   for (let question of questions) {
@@ -34,14 +34,12 @@ server.get('/qa/questions', async (req, res) => {
       where question_id = ${question.question_id}
     `
     for (let answer of answers) {
-      console.log(answer.answe);
       const photos = await sql`
         select
           photo_id as id,
           photo_url as url
         from answers_photos
         where answer_id = ${answer.id}`
-      console.log(photos);
       answer.photos = photos;
       question.answers[answer.id] = answer;
     }
