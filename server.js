@@ -28,45 +28,37 @@ server.get('/qa/questions', async (req, res) => {
           'body', answers.answer_body,
           'date', answer_date,
           'answerer_name', answerer_name,
-          'helpfulness', answer_helpfulness
+          'helpfulness', answer_helpfulness,
+          'photos', photos
         )
       )  answers
     from questions q
-    inner join answers on (q.question_id = answers.question_id)
+    inner join (
+      --replace with answers
+      select
+        answers.question_id,
+        answers.answer_id,
+        answers.answer_body,
+        answers.answer_date,
+        answers.answerer_name,
+        answers.answer_helpfulness,
+        json_agg(
+          json_build_object(
+            'id', answers_photos.photo_id,
+            'url', answers_photos.photo_url
+          )
+        ) photos
+      from answers
+      inner join answers_photos on (answers.answer_id = answers_photos.answer_id)
+      group by answers.answer_id
+    ) as answers
+    on (q.question_id = answers.question_id)
     where
       product_id = ${req.query.product_id}
       and q.reported = ${false}
     group by q.question_id
     limit ${req.query.count || 5}
   `
-  console.log(questions[0].answers);
-  // for (let question of questions) {
-  //   question.answers = {};
-  //   const answers = await sql`
-  //     select
-  //       answer_id as id,
-  //       answer_body as body,
-  //       answer_date as date,
-  //       answerer_name,
-  //       answer_helpfulness as helpfulness
-  //     from answers
-  //     where question_id = ${question.question_id}
-  //   `
-  //   for (let answer of answers) {
-  //     const photos = await sql`
-  //       select
-  //         photo_id as id,
-  //         photo_url as url
-  //       from answers_photos
-  //       where answer_id = ${answer.id}`
-  //     answer.photos = photos;
-  //     question.answers[answer.id] = answer;
-  //   }
-  // }
-  // res.send({
-  //   product_id: req.query.product_id,
-  //   results: questions
-  // });
   res.send(questions);
 })
 
@@ -80,12 +72,12 @@ server.get('/qa/questions/:question_id/answers', async (req, res) => {
         answer_helpfulness as helpfulness,
         json_agg(
           json_build_object(
-            'id', answers_photos.photo_id,
-            'url', answers_photos.photo_url
+            'id', photos.photo_id,
+            'url', photos.photo_url
           )
-        ) photos
+        ) as photos
       from answers
-      inner join answers_photos on (answers.answer_id = answers_photos.answer_id)
+      inner join answers_photos photos on (answers.answer_id = photos.answer_id)
       where question_id = ${req.params.question_id}
       group by answers.answer_id
     `
