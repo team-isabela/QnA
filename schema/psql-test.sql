@@ -20,7 +20,6 @@ CREATE TABLE questions (
 
 
 ALTER TABLE questions ADD CONSTRAINT questions_pkey PRIMARY KEY (question_id);
-
 CREATE INDEX qid ON questions (question_id);
 
 COPY questions
