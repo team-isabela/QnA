@@ -18,6 +18,7 @@ CREATE TABLE questions (
 );
 
 ALTER TABLE questions ADD CONSTRAINT questions_pkey PRIMARY KEY (question_id);
+CREATE INDEX qid ON questions (question_id);
 
 COPY questions
 FROM '/home/kpoduri/projects/hackreactor/senior-phase/sdc6/csv-data/questions.csv'
@@ -40,6 +41,7 @@ CREATE TABLE answers (
 
 
 ALTER TABLE answers ADD CONSTRAINT answers_pkey PRIMARY KEY (answer_id);
+CREATE INDEX aid ON answers (answer_id);
 
 COPY answers
 FROM '/home/kpoduri/projects/hackreactor/senior-phase/sdc6/csv-data/answers.csv'
@@ -60,6 +62,7 @@ FROM '/home/kpoduri/projects/hackreactor/senior-phase/sdc6/csv-data/answers_phot
 DELIMITER ',' CSV HEADER;
 
 ALTER TABLE answers_photos ADD CONSTRAINT answers_photos_pkey PRIMARY KEY (photo_id);
+CREATE INDEX pid ON answers_photos (photo_id);
 
 ALTER TABLE answers ADD CONSTRAINT answers_question_id_fkey FOREIGN KEY (question_id) REFERENCES questions(question_id);
 ALTER TABLE answers_photos ADD CONSTRAINT answers_photos_answer_id_fkey FOREIGN KEY (answer_id) REFERENCES answers(answer_id);
