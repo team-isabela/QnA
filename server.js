@@ -80,15 +80,26 @@ server.get('/qa/questions/:question_id/answers', async (req, res) => {
 server.post('/qa/questions', async (req, res) => {
   console.log('POSTing to questions...');
   console.log(req.body);
-  // await sql`
-  //   insert into questions (
-  //     product_id,
-  //     question_body,
-  //     question_date,
-  //     asker_name,
-  //     asker_email
-  //   )
-  // `
+  await sql`
+    insert into questions (
+      product_id,
+      question_body,
+      question_date,
+      asker_name,
+      asker_email,
+      reported,
+      question_helpfulness
+    )
+    values (
+      ${req.body.product_id},
+      ${req.body.body},
+      ${new Date()},
+      ${req.body.name},
+      ${req.body.email},
+      ${false},
+      ${0}
+    )
+  `
   res.send('POSTed to questions');
 })
 
