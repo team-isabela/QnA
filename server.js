@@ -21,16 +21,14 @@ server.get('/qa/questions', async (req, res) => {
       q.asker_name,
       q.question_helpfulness,
       q.reported,
-      jsonb_agg (
+      json_object_agg (
+        answers.answer_id,
         json_build_object(
-          answers.answer_id,
-          json_build_object(
-            'id', answers.answer_id,
-            'body', answers.answer_body,
-            'date', answer_date,
-            'answerer_name', answerer_name,
-            'helpfulness', answer_helpfulness
-          )
+          'id', answers.answer_id,
+          'body', answers.answer_body,
+          'date', answer_date,
+          'answerer_name', answerer_name,
+          'helpfulness', answer_helpfulness
         )
       )  answers
     from questions q
@@ -69,7 +67,7 @@ server.get('/qa/questions', async (req, res) => {
   //   product_id: req.query.product_id,
   //   results: questions
   // });
-  res.send('done');
+  res.send(questions);
 })
 
 server.get('/qa/questions/:question_id/answers', async (req, res) => {
@@ -80,18 +78,19 @@ server.get('/qa/questions/:question_id/answers', async (req, res) => {
         answer_date as date,
         answerer_name,
         answer_helpfulness as helpfulness
+
       from answers
       where question_id = ${req.params.question_id}
     `
-    for (let answer of answers) {
-      const photos = await sql`
-        select
-          photo_id as id,
-          photo_url as url
-        from answers_photos
-        where answer_id = ${answer.id}`
-      answer.photos = photos;
-    }
+    // for (let answer of answers) {
+    //   const photos = await sql`
+    //     select
+    //       photo_id as id,
+    //       photo_url as url
+    //     from answers_photos
+    //     where answer_id = ${answer.id}`
+    //   answer.photos = photos;
+    // }
     res.send(answers);
 })
 
