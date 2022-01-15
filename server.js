@@ -73,24 +73,22 @@ server.get('/qa/questions', async (req, res) => {
 server.get('/qa/questions/:question_id/answers', async (req, res) => {
   const answers = await sql`
       select
-        answer_id as answer_id,
+        answers.answer_id as answer_id,
         answer_body as body,
         answer_date as date,
         answerer_name,
-        answer_helpfulness as helpfulness
-
+        answer_helpfulness as helpfulness,
+        json_agg(
+          json_build_object(
+            'id', answers_photos.photo_id,
+            'url', answers_photos.photo_url
+          )
+        ) photos
       from answers
+      inner join answers_photos on (answers.answer_id = answers_photos.answer_id)
       where question_id = ${req.params.question_id}
+      group by answers.answer_id
     `
-    // for (let answer of answers) {
-    //   const photos = await sql`
-    //     select
-    //       photo_id as id,
-    //       photo_url as url
-    //     from answers_photos
-    //     where answer_id = ${answer.id}`
-    //   answer.photos = photos;
-    // }
     res.send(answers);
 })
 
