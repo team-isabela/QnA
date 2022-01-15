@@ -15,43 +15,58 @@ server.get('/', (req, res) => {
 server.get('/qa/questions', async (req, res) => {
   const questions = await sql`
     select
-      question_id,
-      question_body,
-      question_date,
-      asker_name,
-      question_helpfulness,
-      reported
-    from questions
-    where product_id = ${req.query.product_id} and reported = ${false}
+      q.question_id,
+      q.question_body,
+      q.question_date,
+      q.asker_name,
+      q.question_helpfulness,
+      q.reported,
+      json_agg (
+        json_build_object(
+          answers.answer_id,
+          json_build_object(
+            'id', answers.answer_id,
+            'body', answers.answer_body
+          )
+        )
+      )  answers
+    from questions q
+    inner join answers on (q.question_id = answers.question_id)
+    where
+      product_id = ${req.query.product_id}
+      and q.reported = ${false}
+    group by q.question_id
     limit ${req.query.count || 5}
   `
-  for (let question of questions) {
-    question.answers = {};
-    const answers = await sql`
-      select
-        answer_id as id,
-        answer_body as body,
-        answer_date as date,
-        answerer_name,
-        answer_helpfulness as helpfulness
-      from answers
-      where question_id = ${question.question_id}
-    `
-    for (let answer of answers) {
-      const photos = await sql`
-        select
-          photo_id as id,
-          photo_url as url
-        from answers_photos
-        where answer_id = ${answer.id}`
-      answer.photos = photos;
-      question.answers[answer.id] = answer;
-    }
-  }
-  res.send({
-    product_id: req.query.product_id,
-    results: questions
-  });
+  console.log(questions[0].answers);
+  // for (let question of questions) {
+  //   question.answers = {};
+  //   const answers = await sql`
+  //     select
+  //       answer_id as id,
+  //       answer_body as body,
+  //       answer_date as date,
+  //       answerer_name,
+  //       answer_helpfulness as helpfulness
+  //     from answers
+  //     where question_id = ${question.question_id}
+  //   `
+  //   for (let answer of answers) {
+  //     const photos = await sql`
+  //       select
+  //         photo_id as id,
+  //         photo_url as url
+  //       from answers_photos
+  //       where answer_id = ${answer.id}`
+  //     answer.photos = photos;
+  //     question.answers[answer.id] = answer;
+  //   }
+  // }
+  // res.send({
+  //   product_id: req.query.product_id,
+  //   results: questions
+  // });
+  res.send('done');
 })
 
 server.get('/qa/questions/:question_id/answers', async (req, res) => {
