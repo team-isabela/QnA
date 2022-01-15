@@ -50,6 +50,29 @@ server.get('/qa/questions', async (req, res) => {
   });
 })
 
+server.get('/qa/questions/:question_id/answers', async (req, res) => {
+  const answers = await sql`
+      select
+        answer_id as answer_id,
+        answer_body as body,
+        answer_date as date,
+        answerer_name,
+        answer_helpfulness as helpfulness
+      from answers
+      where question_id = ${req.params.question_id}
+    `
+    for (let answer of answers) {
+      const photos = await sql`
+        select
+          photo_id as id,
+          photo_url as url
+        from answers_photos
+        where answer_id = ${answer.id}`
+      answer.photos = photos;
+    }
+    res.send(answers);
+})
+
 server.listen(port, () => {
   console.log(`sdc6 qna server.js now listening at port ${port}...`)
 })
