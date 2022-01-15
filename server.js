@@ -59,7 +59,10 @@ server.get('/qa/questions', async (req, res) => {
     group by q.question_id
     limit ${req.query.count || 5}
   `
-  res.send(questions);
+  res.send({
+    product_id: req.query.product_id,
+    results: questions
+  });
 })
 
 server.get('/qa/questions/:question_id/answers', async (req, res) => {
