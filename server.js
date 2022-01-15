@@ -21,12 +21,15 @@ server.get('/qa/questions', async (req, res) => {
       q.asker_name,
       q.question_helpfulness,
       q.reported,
-      json_agg (
+      jsonb_agg (
         json_build_object(
           answers.answer_id,
           json_build_object(
             'id', answers.answer_id,
-            'body', answers.answer_body
+            'body', answers.answer_body,
+            'date', answer_date,
+            'answerer_name', answerer_name,
+            'helpfulness', answer_helpfulness
           )
         )
       )  answers
