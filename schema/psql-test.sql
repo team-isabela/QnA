@@ -13,8 +13,8 @@ CREATE TABLE questions (
  question_date BIGINT,
  asker_name VARCHAR,
  asker_email VARCHAR,
- reported BOOLEAN,
- question_helpfulness INTEGER
+ reported BOOLEAN DEFAULT false,
+ question_helpfulness INTEGER DEFAULT 0
 );
 
 ALTER TABLE questions ADD CONSTRAINT questions_pkey PRIMARY KEY (question_id);

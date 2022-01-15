@@ -1,11 +1,15 @@
 const express = require('express');
+const bodyParser = require('body-parser');
 const sql = require('./db.js');
 
 const server = express();
 const port = 3000;
 
+server.use(bodyParser.urlencoded({ extended: false }));
+server.use(bodyParser.json());
+
 server.get('/', (req, res) => {
-  res.send('root GET response');
+  res.send('qna server is online and true');
 })
 
 server.get('/qa/questions', async (req, res) => {
@@ -72,6 +76,31 @@ server.get('/qa/questions/:question_id/answers', async (req, res) => {
     }
     res.send(answers);
 })
+
+server.post('/qa/questions', async (req, res) => {
+  console.log('POSTing to questions...');
+  console.log(req.body);
+  res.send('POSTed to questions');
+})
+
+server.post('/qa/questions/:question_id/answers', async (req, res) => {
+
+})
+
+
+
+
+
+
+server.put('/qa/questions/:question_id/helpful', async (req, res) => {})
+
+// server.put('qa/questions/:question_id/report', async (req, res) = {}) < this might be rollable into above
+
+server.put('/qa/answers/:question_id/helpful', async (req, res) => {})
+
+// server.put('qa/answers/:question_id/report', async (req, res) = {})
+
+
 
 server.listen(port, () => {
   console.log(`sdc6 qna server.js now listening at port ${port}...`)
