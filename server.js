@@ -79,7 +79,6 @@ server.get('/qa/questions/:question_id/answers', async (req, res) => {
 
 server.post('/qa/questions', async (req, res) => {
   console.log('POSTing to questions...');
-  console.log(req.body);
   await sql`
     insert into questions (
       product_id,
@@ -100,7 +99,7 @@ server.post('/qa/questions', async (req, res) => {
       ${0}
     )
   `
-  res.send('POSTed to questions');
+  res.sendStatus(201);
 })
 
 server.post('/qa/questions/:question_id/answers', async (req, res) => {
