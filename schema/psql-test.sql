@@ -37,8 +37,8 @@ CREATE TABLE answers (
  answer_date BIGINT,
  answerer_name VARCHAR,
  answerer_email VARCHAR,
- reported BOOLEAN,
- answer_helpfulness INTEGER
+ reported BOOLEA DEFAULT false,
+ answer_helpfulness INTEGER DEFAULT 0
 );
 
 

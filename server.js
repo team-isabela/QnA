@@ -8,6 +8,8 @@ const port = 3000;
 server.use(bodyParser.urlencoded({ extended: false }));
 server.use(bodyParser.json());
 
+//GET
+
 server.get('/', (req, res) => {
   res.send('qna server is online and true');
 })
@@ -86,38 +88,116 @@ server.get('/qa/questions/:question_id/answers', async (req, res) => {
     res.send(answers);
 })
 
+//POST
+
 server.post('/qa/questions', async (req, res) => {
   console.log('POSTing to questions...');
-  console.log(req.body);
-  // await sql`
-  //   insert into questions (
-  //     product_id,
-  //     question_body,
-  //     question_date,
-  //     asker_name,
-  //     asker_email
-  //   )
-  // `
-  res.send('POSTed to questions');
+  await sql`
+    insert into questions (
+      product_id,
+      question_body,
+      question_date,
+      asker_name,
+      asker_email,
+      reported,
+      question_helpfulness
+    )
+    values (
+      ${req.body.product_id},
+      ${req.body.body},
+      ${new Date()},
+      ${req.body.name},
+      ${req.body.email},
+      ${false},
+      ${0}
+    )
+  `
+  res.sendStatus(201);
 })
 
 server.post('/qa/questions/:question_id/answers', async (req, res) => {
+  console.log('POSTing to answers...')
+  console.log(req.params);
+  console.log(req.body);
+  const [newAnswer] = await sql`
+    insert into answers (
+      question_id,
+      answer_body,
+      answer_date,
+      answerer_name,
+      answerer_email,
+      reported,
+      answer_helpfulness
+    )
+    values (
+      ${req.params.question_id},
+      ${req.body.body},
+      ${new Date()},
+      ${req.body.name},
+      ${req.body.email},
+      ${false},
+      ${0}
+    )
+    returning *
+  `
+  for (let photo of req.body.photos) {
+    console.log(typeof photo);
+    await sql`
+      insert into answers_photos (
+        answer_id,
+        photo_url
+      )
+      values (
+        ${newAnswer.answer_id},
+        ${photo}
+      )
+    `
+  }
 
+  res.sendStatus(201);
 })
 
+//PUT
 
+server.put('/qa/questions/:question_id/:mark', async (req, res) => {
+  res.status(204);
+  if (req.params.mark === 'helpful') {
+    await sql`
+      update questions
+        set question_helpfulness = question_helpfulness + 1
+      where question_id = ${req.params.question_id}
+    `
+  } else if (req.params.mark === 'report') {
+    await sql`
+      update questions
+        set reported = ${true}
+      where question_id = ${req.params.question_id}
+    `
+  } else {
+    res.status(404);
+  }
+  res.end();
+})
 
-
-
-
-server.put('/qa/questions/:question_id/helpful', async (req, res) => {})
-
-// server.put('qa/questions/:question_id/report', async (req, res) = {}) < this might be rollable into above
-
-server.put('/qa/answers/:question_id/helpful', async (req, res) => {})
-
-// server.put('qa/answers/:question_id/report', async (req, res) = {})
-
+server.put('/qa/answers/:answer_id/:mark', async (req, res) => {
+  res.status(204);
+  if (req.params.mark === 'helpful') {
+    await sql`
+    update answers
+      set answer_helpfulness = answer_helpfulness + 1
+    where answer_id = ${req.params.answer_id}
+  `
+  } else if (req.params.mark === 'report') {
+    await sql`
+      update answers
+        set reported = ${true}
+      where answer_id = ${req.params.answer_id}
+    `
+  } else {
+    res.status(404);
+  }
+  res.end();
+})
 
 
 server.listen(port, () => {
