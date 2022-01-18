@@ -34,7 +34,6 @@ server.get('/qa/questions', async (req, res) => {
       )  answers
     from questions q
     inner join (
-      --replace with answers
       select
         answers.question_id,
         answers.answer_id,
