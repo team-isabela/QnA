@@ -8,6 +8,8 @@ const port = 3000;
 server.use(bodyParser.urlencoded({ extended: false }));
 server.use(bodyParser.json());
 
+//GET
+
 server.get('/', (req, res) => {
   res.send('qna server is online and true');
 })
@@ -77,6 +79,8 @@ server.get('/qa/questions/:question_id/answers', async (req, res) => {
     res.send(answers);
 })
 
+//POST
+
 server.post('/qa/questions', async (req, res) => {
   console.log('POSTing to questions...');
   await sql`
@@ -144,9 +148,10 @@ server.post('/qa/questions/:question_id/answers', async (req, res) => {
   res.sendStatus(201);
 })
 
+//PUT
+
 server.put('/qa/questions/:question_id/:mark', async (req, res) => {
   res.status(204);
-  console.log(req.params.mark);
   if (req.params.mark === 'helpful') {
     await sql`
       update questions
@@ -161,17 +166,29 @@ server.put('/qa/questions/:question_id/:mark', async (req, res) => {
     `
   } else {
     res.status(404);
-    console.log(404);
   }
   res.end();
 })
 
-// server.put('qa/questions/:question_id/report', async (req, res) = {}) < this might be rollable into above
-
-server.put('/qa/answers/:question_id/helpful', async (req, res) => {})
-
-// server.put('qa/answers/:question_id/report', async (req, res) = {})
-
+server.put('/qa/answers/:answer_id/:mark', async (req, res) => {
+  res.status(204);
+  if (req.params.mark === 'helpful') {
+    await sql`
+    update answers
+      set answer_helpfulness = answer_helpfulness + 1
+    where answer_id = ${req.params.answer_id}
+  `
+  } else if (req.params.mark === 'report') {
+    await sql`
+      update answers
+        set reported = ${true}
+      where answer_id = ${req.params.answer_id}
+    `
+  } else {
+    res.status(404);
+  }
+  res.end();
+})
 
 
 server.listen(port, () => {
