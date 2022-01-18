@@ -103,15 +103,68 @@ server.post('/qa/questions', async (req, res) => {
 })
 
 server.post('/qa/questions/:question_id/answers', async (req, res) => {
+  console.log('POSTing to answers...')
+  console.log(req.params);
+  console.log(req.body);
+  const [newAnswer] = await sql`
+    insert into answers (
+      question_id,
+      answer_body,
+      answer_date,
+      answerer_name,
+      answerer_email,
+      reported,
+      answer_helpfulness
+    )
+    values (
+      ${req.params.question_id},
+      ${req.body.body},
+      ${new Date()},
+      ${req.body.name},
+      ${req.body.email},
+      ${false},
+      ${0}
+    )
+    returning *
+  `
+  for (let photo of req.body.photos) {
+    console.log(typeof photo);
+    await sql`
+      insert into answers_photos (
+        answer_id,
+        photo_url
+      )
+      values (
+        ${newAnswer.answer_id},
+        ${photo}
+      )
+    `
+  }
 
+  res.sendStatus(201);
 })
 
-
-
-
-
-
-server.put('/qa/questions/:question_id/helpful', async (req, res) => {})
+server.put('/qa/questions/:question_id/:mark', async (req, res) => {
+  res.status(204);
+  console.log(req.params.mark);
+  if (req.params.mark === 'helpful') {
+    await sql`
+      update questions
+        set question_helpfulness = question_helpfulness + 1
+      where question_id = ${req.params.question_id}
+    `
+  } else if (req.params.mark === 'report') {
+    await sql`
+      update questions
+        set reported = ${true}
+      where question_id = ${req.params.question_id}
+    `
+  } else {
+    res.status(404);
+    console.log(404);
+  }
+  res.end();
+})
 
 // server.put('qa/questions/:question_id/report', async (req, res) = {}) < this might be rollable into above
 
