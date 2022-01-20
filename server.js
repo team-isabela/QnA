@@ -16,14 +16,31 @@ server.get('/', (req, res) => {
 
 server.get('/qa/questions', async (req, res) => {
   const questions = await sql`
+    with aggs as (
+      select
+        a.question_id,
+        a.answer_id,
+        answer_body,
+        answer_date,
+        answerer_name,
+        answer_helpfulness,
+        json_agg(
+          json_build_object(
+            'id', p.photo_id,
+            'url', p.photo_url
+          )
+        ) as photos
+      from answers a inner join answers_photos p on a.answer_id = p.answer_id
+      group by a.answer_id
+    )
     select
       q.question_id,
-      q.question_body,
-      q.question_date,
-      q.asker_name,
-      q.question_helpfulness,
-      q.reported,
-      json_object_agg (
+      question_body,
+      question_date,
+      asker_name,
+      question_helpfulness,
+      reported,
+      json_object_agg(
         a.answer_id,
         json_build_object(
           'id', a.answer_id,
@@ -31,24 +48,13 @@ server.get('/qa/questions', async (req, res) => {
           'date', answer_date,
           'answerer_name', answerer_name,
           'helpfulness', answer_helpfulness,
-          'photos', json_build_object(
-            'id', 3,
-            'url', 3
-          )
+          'photos', a.photos
         )
       ) answers
-    from questions q
-    inner join answers a on (q.question_id = a.question_id)
-    inner join answers_photos p on (a.answer_id = p.answer_id)
-    where
-      product_id = ${req.query.product_id}
-      and q.reported = ${false}
-      and a.reported = ${false}
+    from questions q inner join aggs a on q.question_id = a.question_id
+    where q.product_id = ${req.query.product_id}
     group by q.question_id
-    limit ${req.query.count || 5}
   `
-  // console.log(questions);
-  // res.end();
   res.send({
     product_id: req.query.product_id,
     results: questions
