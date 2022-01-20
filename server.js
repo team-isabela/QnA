@@ -24,42 +24,31 @@ server.get('/qa/questions', async (req, res) => {
       q.question_helpfulness,
       q.reported,
       json_object_agg (
-        answers.answer_id,
+        a.answer_id,
         json_build_object(
-          'id', answers.answer_id,
-          'body', answers.answer_body,
+          'id', a.answer_id,
+          'body', answer_body,
           'date', answer_date,
           'answerer_name', answerer_name,
           'helpfulness', answer_helpfulness,
-          'photos', photos
-        )
-      )  answers
-    from questions q
-    inner join (
-      select
-        answers.question_id,
-        answers.answer_id,
-        answers.answer_body,
-        answers.answer_date,
-        answers.answerer_name,
-        answers.answer_helpfulness,
-        json_agg(
-          json_build_object(
-            'id', answers_photos.photo_id,
-            'url', answers_photos.photo_url
+          'photos', json_build_object(
+            'id', 3,
+            'url', 3
           )
-        ) photos
-      from answers
-      inner join answers_photos on (answers.answer_id = answers_photos.answer_id)
-      group by answers.answer_id
-    ) as answers
-    on (q.question_id = answers.question_id)
+        )
+      ) answers
+    from questions q
+    inner join answers a on (q.question_id = a.question_id)
+    inner join answers_photos p on (a.answer_id = p.answer_id)
     where
       product_id = ${req.query.product_id}
       and q.reported = ${false}
+      and a.reported = ${false}
     group by q.question_id
     limit ${req.query.count || 5}
   `
+  // console.log(questions);
+  // res.end();
   res.send({
     product_id: req.query.product_id,
     results: questions
