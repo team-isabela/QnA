@@ -7,11 +7,11 @@ export let options = {
   duration: "30s", //how long you want it to run
 };
 
-//Below randomize the endpoints
-// export default function () {
-//   http.get(`http://localhost:3000/qa/questions/?product_id=${Math.floor(Math.random() * (1000000 - 1 + 1)) + 1}`);
-// }
-
+// Below randomize the endpoints
 export default function () {
-  http.get(`http://localhost:3000/qa/questions/${Math.floor(Math.random() * (1000000 - 1 + 1)) + 1}/answers`);
+  http.get(`http://localhost:3000/qa/questions/?product_id=${Math.floor(Math.random() * (1000000 - 1 + 1)) + 1}`);
 }
+
+// export default function () {
+//   http.get(`http://localhost:3000/qa/questions/${Math.floor(Math.random() * (1000000 - 1 + 1)) + 1}/answers`);
+// }

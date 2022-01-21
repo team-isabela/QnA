@@ -15,46 +15,89 @@ server.get('/', (req, res) => {
 })
 
 server.get('/qa/questions', async (req, res) => {
+  // const questions = await sql`
+  //   with aggs as (
+  //     select
+  //       a.question_id,
+  //       a.answer_id,
+  //       answer_body,
+  //       answer_date,
+  //       answerer_name,
+  //       answer_helpfulness,
+  //       json_agg(
+  //         json_build_object(
+  //           'id', p.photo_id,
+  //           'url', p.photo_url
+  //         )
+  //       ) as photos
+  //     from answers a inner join answers_photos p on a.answer_id = p.answer_id
+  //     group by a.answer_id
+  //   )
+  //   select
+  //     q.question_id,
+  //     question_body,
+  //     question_date,
+  //     asker_name,
+  //     question_helpfulness,
+  //     reported,
+  //     json_object_agg(
+  //       a.answer_id,
+  //       json_build_object(
+  //         'id', a.answer_id,
+  //         'body', answer_body,
+  //         'date', answer_date,
+  //         'answerer_name', answerer_name,
+  //         'helpfulness', answer_helpfulness,
+  //         'photos', a.photos
+  //       )
+  //     ) answers
+  //   from questions q inner join aggs a on q.question_id = a.question_id
+  //   where q.product_id = ${req.query.product_id}
+  //   group by q.question_id
+  // `
   const questions = await sql`
-    with aggs as (
-      select
-        a.question_id,
-        a.answer_id,
-        answer_body,
-        answer_date,
-        answerer_name,
-        answer_helpfulness,
-        json_agg(
-          json_build_object(
-            'id', p.photo_id,
-            'url', p.photo_url
-          )
-        ) as photos
-      from answers a inner join answers_photos p on a.answer_id = p.answer_id
-      group by a.answer_id
-    )
+  with aggs as (
     select
+      q.product_id,
       q.question_id,
       question_body,
-      question_date,
-      asker_name,
-      question_helpfulness,
-      reported,
-      json_object_agg(
-        a.answer_id,
-        json_build_object(
-          'id', a.answer_id,
-          'body', answer_body,
-          'date', answer_date,
-          'answerer_name', answerer_name,
-          'helpfulness', answer_helpfulness,
-          'photos', a.photos
-        )
-      ) answers
-    from questions q inner join aggs a on q.question_id = a.question_id
-    where q.product_id = ${req.query.product_id}
-    group by q.question_id
+      a.answer_id,
+      p.photo_id,
+      p.photo_url
+    from questions q
+      left join answers a on (q.question_id = a.question_id)
+      left join answers_photos p on (a.answer_id = p.answer_id)
+  )
+  select
+    question_id,
+    question_body,
+    json_object_agg(
+      coalesce(answer_id, 0),
+      json_build_object(
+        'id', answer_id
+      )
+    ) answers,
+    json_agg(
+      json_build_object(
+        'answer_id', answer_id,
+        'id', photo_id,
+        'url', photo_url
+      )
+    ) photo_ids
+  from aggs
+    where product_id = ${req.query.product_id}
+  group by question_id
   `
+
+  for (let question of questions) {
+    if (question.answers['0']) {
+      console.log('found zero');
+      question.answers = {};
+      delete question.photo_ids;
+      console.log(question);
+    }
+  }
+
   res.send({
     product_id: req.query.product_id,
     results: questions
