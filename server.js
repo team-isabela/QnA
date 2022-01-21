@@ -44,6 +44,8 @@ server.get('/qa/questions', async (req, res) => {
     inner join answers_photos p on a.answer_id = p.answer_id
   where q.product_id = ${req.query.product_id}
   group by q.question_id, a.answer_id
+  order by question_helpfulness desc
+  limit ${req.query.count || 5}
   `
 
   res.send({
@@ -70,6 +72,7 @@ server.get('/qa/questions/:question_id/answers', async (req, res) => {
       inner join answers_photos photos on (answers.answer_id = photos.answer_id)
       where question_id = ${req.params.question_id}
       group by answers.answer_id
+      order by answer_helpfulness desc
     `
     res.send(answers);
 })
