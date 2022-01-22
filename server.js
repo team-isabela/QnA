@@ -8,6 +8,14 @@ const port = 3000;
 server.use(bodyParser.urlencoded({ extended: false }));
 server.use(bodyParser.json());
 
+
+//TESTING
+
+server.get('//loaderio-f469ad9b34e7a56bf26f3ff30d1d28f3/', (req, res) => {
+  res.send('loaderio-f469ad9b34e7a56bf26f3ff30d1d28f3');
+})
+
+
 //GET
 
 server.get('/', (req, res) => {
