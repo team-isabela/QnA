@@ -11,7 +11,11 @@ server.use(bodyParser.json());
 
 //TESTING
 
+<<<<<<< HEAD
 server.get('/loaderio-f469ad9b34e7a56bf26f3ff30d1d28f3/', (req, res) => {
+=======
+server.get('//loaderio-f469ad9b34e7a56bf26f3ff30d1d28f3/', (req, res) => {
+>>>>>>> 07ed803fd654859ed9ef1ff25d85fade5653b0be
   res.send('loaderio-f469ad9b34e7a56bf26f3ff30d1d28f3');
 })
 
