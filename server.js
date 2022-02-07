@@ -113,8 +113,6 @@ server.post('/qa/questions', async (req, res) => {
 
 server.post('/qa/questions/:question_id/answers', async (req, res) => {
   console.log('POSTing to answers...');
-  console.log(req.params);
-  console.log(req.body);
   const [newAnswer] = await sql`
     insert into answers (
       question_id,
@@ -137,7 +135,6 @@ server.post('/qa/questions/:question_id/answers', async (req, res) => {
     returning *
   `;
   for (let photo of req.body.photos) {
-    console.log(typeof photo);
     await sql`
       insert into answers_photos (
         answer_id,
@@ -196,5 +193,5 @@ server.put('/qa/answers/:answer_id/:mark', async (req, res) => {
 });
 
 server.listen(port, () => {
-  console.log(`sdc6 qna server.js now listening at port ${port}...`);
+  console.log(`qna server.js now listening at port ${port}...`);
 });
