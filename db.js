@@ -1,10 +1,10 @@
 const postgres = require('postgres');
-const {psqlpw} = require('./config.js');
+const { psqlpw } = require('./config.js');
 
 const sql = postgres({
   database: 'qna',
   user: 'dev',
-  password:  psqlpw
+  password: psqlpw,
 });
 
-module.exports = sql
+module.exports = sql;
