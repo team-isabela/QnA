@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const sql = require('./db.js');
+const { loaderToken } = require('./config.js');
 
 const server = express();
 const port = 3000;
@@ -8,19 +9,17 @@ const port = 3000;
 server.use(bodyParser.urlencoded({ extended: false }));
 server.use(bodyParser.json());
 
-
 //TESTING
 
-server.get('/loaderio-f469ad9b34e7a56bf26f3ff30d1d28f3/', (req, res) => {
-  res.send('loaderio-f469ad9b34e7a56bf26f3ff30d1d28f3');
-})
-
+server.get(`/${loaderToken}/`, (req, res) => {
+  res.send(loaderToken);
+});
 
 //GET
 
 server.get('/', (req, res) => {
   res.send('qna server is online and true');
-})
+});
 
 server.get('/qa/questions', async (req, res) => {
   const questions = await sql`
@@ -54,13 +53,13 @@ server.get('/qa/questions', async (req, res) => {
   group by q.question_id, a.answer_id
   order by question_helpfulness desc
   limit ${req.query.count || 5}
-  `
+  `;
 
   res.send({
     product_id: req.query.product_id,
-    results: questions
+    results: questions,
   });
-})
+});
 
 server.get('/qa/questions/:question_id/answers', async (req, res) => {
   const answers = await sql`
@@ -81,9 +80,9 @@ server.get('/qa/questions/:question_id/answers', async (req, res) => {
       where question_id = ${req.params.question_id}
       group by answers.answer_id
       order by answer_helpfulness desc
-    `
-    res.send(answers);
-})
+    `;
+  res.send(answers);
+});
 
 //POST
 
@@ -108,12 +107,12 @@ server.post('/qa/questions', async (req, res) => {
       ${false},
       ${0}
     )
-  `
+  `;
   res.sendStatus(201);
-})
+});
 
 server.post('/qa/questions/:question_id/answers', async (req, res) => {
-  console.log('POSTing to answers...')
+  console.log('POSTing to answers...');
   console.log(req.params);
   console.log(req.body);
   const [newAnswer] = await sql`
@@ -136,7 +135,7 @@ server.post('/qa/questions/:question_id/answers', async (req, res) => {
       ${0}
     )
     returning *
-  `
+  `;
   for (let photo of req.body.photos) {
     console.log(typeof photo);
     await sql`
@@ -148,11 +147,11 @@ server.post('/qa/questions/:question_id/answers', async (req, res) => {
         ${newAnswer.answer_id},
         ${photo}
       )
-    `
+    `;
   }
 
   res.sendStatus(201);
-})
+});
 
 //PUT
 
@@ -163,18 +162,18 @@ server.put('/qa/questions/:question_id/:mark', async (req, res) => {
       update questions
         set question_helpfulness = question_helpfulness + 1
       where question_id = ${req.params.question_id}
-    `
+    `;
   } else if (req.params.mark === 'report') {
     await sql`
       update questions
         set reported = ${true}
       where question_id = ${req.params.question_id}
-    `
+    `;
   } else {
     res.status(404);
   }
   res.end();
-})
+});
 
 server.put('/qa/answers/:answer_id/:mark', async (req, res) => {
   res.status(204);
@@ -183,20 +182,19 @@ server.put('/qa/answers/:answer_id/:mark', async (req, res) => {
     update answers
       set answer_helpfulness = answer_helpfulness + 1
     where answer_id = ${req.params.answer_id}
-  `
+  `;
   } else if (req.params.mark === 'report') {
     await sql`
       update answers
         set reported = ${true}
       where answer_id = ${req.params.answer_id}
-    `
+    `;
   } else {
     res.status(404);
   }
   res.end();
-})
-
+});
 
 server.listen(port, () => {
-  console.log(`sdc6 qna server.js now listening at port ${port}...`)
-})
+  console.log(`sdc6 qna server.js now listening at port ${port}...`);
+});

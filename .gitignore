@@ -2,3 +2,4 @@ csv-data
 node_modules
 aws-launch
 qna.dump
+config.js
